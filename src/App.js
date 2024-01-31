@@ -1,5 +1,5 @@
 import './App.css';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlay, faPause, faRepeat } from '@fortawesome/free-solid-svg-icons';
 import  SessionBreak  from './components/SessionBreak';
@@ -9,19 +9,8 @@ import  HandlerLength  from './components/HandlerLength';
 function App() {
 
   const [toggleBoolean, setToggleBoolean] = useState(false);
-  const [time, setTime] = useState(1*60);
-
-  useEffect(() => {
-    let intervalo;
-    if (toggleBoolean && time > 0) { 
-      intervalo = setInterval(() => {
-        setTime(time => time - 1)
-      }, 1000);
-    }
-    return () => {
-      clearInterval(intervalo);
-    };
-  }, [time, toggleBoolean]);
+  const [sessionTime, setSessionTime] = useState(25*60);
+  const [breakTime, setBreakTime] = useState(5*60);
 
     //manejar el boton de play pause
     const togglePlay = () => {
@@ -41,22 +30,8 @@ function App() {
 
     const restart = () => {
       setToggleBoolean(false);
+      
     }
-
-    const handleIncrement = () => {
-
-      if (!toggleBoolean) {
-        setTime(time + 60);
-      }
-    }
-
-
-    const handleDecrement = () => {
-      if (!toggleBoolean) {
-        setTime(time - 60)
-      }
-    }
-
 
   return (
 
@@ -69,24 +44,31 @@ function App() {
       <div className='container-fluid row flex-row'>
         <HandlerLength 
           title="Break Length"
+          time={breakTime}
+          handleClick={setBreakTime}
+          increment='break-increment' 
+          decrement='break-decrement' 
           showTime={showTime} 
            />
 
 
         <HandlerLength 
           title="Session Length" 
-          time={time}
+          time={sessionTime}
+          handleClick={setSessionTime} 
           increment='session-increment' 
           decrement='session-decrement' 
-          onIncrement={handleIncrement} 
-          onDecrement={handleDecrement}
           showTime={showTime} />
       </div>
 
-      <SessionBreak time={showTime(time)} title={'Session'} />
-      <div>
-        <button className='btn btn-light' onClick={togglePlay}><FontAwesomeIcon icon={toggleBoolean ? faPause : faPlay} /></button>
-        <button className='btn btn-light' onClick={restart}><FontAwesomeIcon icon={faRepeat}/></button>
+      <SessionBreak 
+        time={sessionTime}
+        showTime={showTime} 
+        title={'Session'}
+        onPause={toggleBoolean} />
+      <div className='row gap-2 flex-nowrap justify-content-center align-content-center'>
+        <button className='btn btn-light col-2' onClick={togglePlay}><FontAwesomeIcon icon={toggleBoolean ? faPause : faPlay} /></button>
+        <button className='btn btn-light col-2' onClick={restart}><FontAwesomeIcon icon={faRepeat}/></button>
       </div>
     </div>
   );
