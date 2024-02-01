@@ -1,25 +1,10 @@
-import { useEffect, useState } from "react";
-function SessionBreak({ time, showTime, title, onPause }) {
 
-    const [timeCurrent, setTimeCurrent] = useState(time);
-
-
-    useEffect(() => {
-        let intervalo;
-        if (onPause && timeCurrent > 0) { 
-          intervalo = setInterval(() => {
-            setTimeCurrent(timeCurrent - 1)
-          }, 1000);
-        }
-        return () => {
-          clearInterval(intervalo);
-        };
-      }, [timeCurrent, onPause]);
+function SessionBreak({ time, showTime, title, idTitle, idTime }) {
 
     return (
         <div>
-            <h1>{title}</h1>
-            <p className="fs-5 fw-bold">{showTime(timeCurrent)}</p>
+            <h1 id={idTitle} >{title}</h1>
+            <p className="fs-5 fw-bold" id={idTime} >{showTime(time)}</p>
         </div>
     );
 }

@@ -1,5 +1,5 @@
 import './App.css';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlay, faPause, faRepeat } from '@fortawesome/free-solid-svg-icons';
 import  SessionBreak  from './components/SessionBreak';
@@ -9,8 +9,46 @@ import  HandlerLength  from './components/HandlerLength';
 function App() {
 
   const [toggleBoolean, setToggleBoolean] = useState(false);
+  const [breakOrSession, setBreakOrSession] = useState(false);
   const [sessionTime, setSessionTime] = useState(25*60);
   const [breakTime, setBreakTime] = useState(5*60);
+  let [displayTime, setDisplayTime] = useState(25*60);
+  const [titleDisplay, setTitleDisplay] = useState("Session");
+
+
+  useEffect(() => {
+    let intervalo;
+
+    let timeDisplay = () => {
+      return breakOrSession ? sessionTime : breakTime;
+    }
+    let displayTitle = () => {
+      return breakOrSession ? 'Session' : 'Break';
+    }
+    if (toggleBoolean && displayTime >= 0) {
+      intervalo = setInterval(() => {
+
+
+        if (displayTime === 0) {
+          setBreakOrSession(!breakOrSession);
+          setDisplayTime(timeDisplay());
+          setTitleDisplay(displayTitle());
+        } else {
+          setDisplayTime(displayTime - 1);
+        }
+      }, 100);
+    }
+
+
+    return () => {
+      clearInterval(intervalo);
+    };
+  }, [toggleBoolean, displayTime, breakTime, sessionTime, breakOrSession]);
+
+
+    
+
+
 
     //manejar el boton de play pause
     const togglePlay = () => {
@@ -27,11 +65,40 @@ function App() {
 
       return `${minutes < 10 ? `0${minutes}` : minutes}:${seconds < 10 ? `0${seconds}` : seconds}`;
     }
-
+    //funcion para reiniciar el contador del display
     const restart = () => {
       setToggleBoolean(false);
-      
+      setDisplayTime(sessionTime);
+      setTitleDisplay("Session")
     }
+
+    //funcion para manejar los botones de la longitud de las sesiones
+    const handleTime = (type, amount) => {
+
+      if (type === 'break') {
+        if (breakTime === 60 && amount < 0) {
+          return;
+        }
+        if (breakTime === 3600 && amount > 0) {
+          return;
+        }
+        setBreakTime(prev => prev + amount)
+      } else{
+        if (sessionTime === 60 && amount < 0) {
+          return;
+        }
+        if (sessionTime === 3600 && amount > 0) {
+          return;
+        }         
+        setSessionTime(prev => prev + amount);
+        if (!toggleBoolean) {
+          setDisplayTime(sessionTime + amount )
+        }
+      }
+    }
+
+
+
 
   return (
 
@@ -45,30 +112,38 @@ function App() {
         <HandlerLength 
           title="Break Length"
           time={breakTime}
-          handleClick={setBreakTime}
+          type='break'
+          handleClick={handleTime}
           increment='break-increment' 
           decrement='break-decrement' 
           showTime={showTime} 
+          idLabel='break-label'
+          idLength="break-length"
            />
 
 
         <HandlerLength 
           title="Session Length" 
           time={sessionTime}
-          handleClick={setSessionTime} 
+          type='session'
+          handleClick={handleTime} 
           increment='session-increment' 
           decrement='session-decrement' 
-          showTime={showTime} />
+          showTime={showTime}
+          idLabel='session-label'
+          idLength="session-length" />
       </div>
 
       <SessionBreak 
-        time={sessionTime}
+        time={displayTime}
         showTime={showTime} 
-        title={'Session'}
-        onPause={toggleBoolean} />
-      <div className='row gap-2 flex-nowrap justify-content-center align-content-center'>
-        <button className='btn btn-light col-2' onClick={togglePlay}><FontAwesomeIcon icon={toggleBoolean ? faPause : faPlay} /></button>
-        <button className='btn btn-light col-2' onClick={restart}><FontAwesomeIcon icon={faRepeat}/></button>
+        title={titleDisplay}
+        idTitle='timer-label'
+        idTime='time-left' />
+      <div className='row gap-2 justify-content-center align-content-center'>
+        <button className='btn btn-light col-2' onClick={togglePlay} id="start_stop" ><FontAwesomeIcon icon={toggleBoolean ? faPause : faPlay} /></button>
+        <button className='btn btn-light col-2' onClick={restart} id='reset' ><FontAwesomeIcon icon={faRepeat}/></button>
+        <p className='col-12 mt-5'>Designed and Coded by <a href='https://github.com/bialyLT/pomodoro-clock-react' target='_blank' rel="noreferrer" className='bi bi-github link-opacity-25-hover link-underline link-underline-opacity-0 link-light'>BialyLT</a></p>
       </div>
     </div>
   );
