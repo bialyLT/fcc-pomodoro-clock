@@ -5,9 +5,9 @@ function HandlerLength({ title, time, type, handleClick, increment, decrement, s
     return (
         <div>
             <h2 id={idLabel} >{title}</h2>
-            <div className='row flex-nowrap justify-content-center align-items-center align-content-center'>
+            <div id={idLength} className='row flex-nowrap justify-content-center align-items-center align-content-center'>
                 <button className='btn btn-outline-light btn-sm col-1' onClick={() => handleClick(type, -60)} id={decrement}><FontAwesomeIcon icon={faArrowDown} size='l'/></button>
-                <p className='col-3 fs-2 fw-bold m-0' id={idLength} >{showTime(time)}</p>
+                <p className='col-3 fs-2 fw-bold m-0' >{showTime(time)}</p>
                 <button className='btn btn-outline-light btn-sm col-1' onClick={() => handleClick(type, 60)} id={increment} ><FontAwesomeIcon icon={faArrowUp} size='l'/></button>
             </div>
         </div>

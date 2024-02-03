@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlay, faPause, faRepeat } from '@fortawesome/free-solid-svg-icons';
 import  SessionBreak  from './components/SessionBreak';
 import  HandlerLength  from './components/HandlerLength';
+import audioClock from './assets/audioClock.mp3';
 
 
 function App() {
@@ -14,6 +15,7 @@ function App() {
   const [breakTime, setBreakTime] = useState(5*60);
   let [displayTime, setDisplayTime] = useState(25*60);
   const [titleDisplay, setTitleDisplay] = useState("Session");
+  const [audio, setAudio] = useState(new Audio(audioClock));
 
 
   useEffect(() => {
@@ -33,17 +35,19 @@ function App() {
           setBreakOrSession(!breakOrSession);
           setDisplayTime(timeDisplay());
           setTitleDisplay(displayTitle());
+          audio.play();
+          audio.currentTime = 0;
         } else {
           setDisplayTime(displayTime - 1);
         }
-      }, 100);
+      }, 1000);
     }
 
 
     return () => {
       clearInterval(intervalo);
     };
-  }, [toggleBoolean, displayTime, breakTime, sessionTime, breakOrSession]);
+  }, [toggleBoolean, displayTime, breakTime, sessionTime, breakOrSession, audio]);
 
 
     
@@ -69,37 +73,42 @@ function App() {
     const restart = () => {
       setToggleBoolean(false);
       setDisplayTime(sessionTime);
-      setTitleDisplay("Session")
+      setTitleDisplay("Session");
+      audio.pause();
+      audio.currentTime = 0;
     }
 
     //funcion para manejar los botones de la longitud de las sesiones
     const handleTime = (type, amount) => {
 
-      if (type === 'break') {
-        if (breakTime === 60 && amount < 0) {
-          return;
-        }
-        if (breakTime === 3600 && amount > 0) {
-          return;
-        }
-        setBreakTime(prev => prev + amount)
-      } else{
-        if (sessionTime === 60 && amount < 0) {
-          return;
-        }
-        if (sessionTime === 3600 && amount > 0) {
-          return;
-        }         
-        setSessionTime(prev => prev + amount);
-        if (!toggleBoolean) {
-          setDisplayTime(sessionTime + amount )
+      if (!toggleBoolean) {
+        
+        if (type === 'break') {
+          if (breakTime === 60 && amount < 0) {
+            return;
+          }
+          if (breakTime === 3600 && amount > 0) {
+            return;
+          }
+          setBreakTime(prev => prev + amount)
+        } else{
+          if (sessionTime === 60 && amount < 0) {
+            return;
+          }
+          if (sessionTime === 3600 && amount > 0) {
+            return;
+          }         
+          setSessionTime(prev => prev + amount);
+          if (!toggleBoolean) {
+            setDisplayTime(sessionTime + amount )
+          }
         }
       }
-    }
-
-
-
-
+      }
+      
+      
+      
+      
   return (
 
     
@@ -144,6 +153,7 @@ function App() {
         <button className='btn btn-light col-2' onClick={togglePlay} id="start_stop" ><FontAwesomeIcon icon={toggleBoolean ? faPause : faPlay} /></button>
         <button className='btn btn-light col-2' onClick={restart} id='reset' ><FontAwesomeIcon icon={faRepeat}/></button>
         <p className='col-12 mt-5'>Designed and Coded by <a href='https://github.com/bialyLT/pomodoro-clock-react' target='_blank' rel="noreferrer" className='bi bi-github link-opacity-25-hover link-underline link-underline-opacity-0 link-light'>BialyLT</a></p>
+        <audio src={audio} id='beep' ></audio>
       </div>
     </div>
   );
