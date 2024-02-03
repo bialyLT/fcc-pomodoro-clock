@@ -9,28 +9,38 @@ import audioClock from './assets/audioClock.mp3';
 
 function App() {
 
+
+  // controla el boton play/pause
   const [toggleBoolean, setToggleBoolean] = useState(false);
+  // controla la vista del display (elige entre session o break)
   const [breakOrSession, setBreakOrSession] = useState(false);
+  // estado que maneja el tiempo de cada sesion
   const [sessionTime, setSessionTime] = useState(25*60);
+  // estado que maneja el tiempo de cada break
   const [breakTime, setBreakTime] = useState(5*60);
+  // estado que maneja el tiempo del display 
   let [displayTime, setDisplayTime] = useState(25*60);
+  // estado que maneja el titulo del display
   const [titleDisplay, setTitleDisplay] = useState("Session");
+  // estado que maneja la alarma que se ejecuta en cada finalizacion de tiempo
   const [audio, setAudio] = useState(new Audio(audioClock));
 
 
   useEffect(() => {
     let intervalo;
-
+    // funcion para elegir que tiempo mostrara el display
     let timeDisplay = () => {
       return breakOrSession ? sessionTime : breakTime;
     }
+    // funcion para elegir que titulo mostrara el display
     let displayTitle = () => {
       return breakOrSession ? 'Session' : 'Break';
     }
+    // intervalo que maneja el temporizador del display
     if (toggleBoolean && displayTime >= 0) {
       intervalo = setInterval(() => {
 
-
+        // en esta condicion cambiamos de sesion a break o viceversa cuando el tiempo llega a 0 y ejecutamos la alarma
         if (displayTime === 0) {
           setBreakOrSession(!breakOrSession);
           setDisplayTime(timeDisplay());
@@ -38,6 +48,7 @@ function App() {
           audio.play();
           audio.currentTime = 0;
         } else {
+          // cuenta regresiva del display
           setDisplayTime(displayTime - 1);
         }
       }, 1000);
@@ -45,6 +56,7 @@ function App() {
 
 
     return () => {
+      //eliminamos el intervalo al terminar
       clearInterval(intervalo);
     };
   }, [toggleBoolean, displayTime, breakTime, sessionTime, breakOrSession, audio]);
@@ -80,7 +92,6 @@ function App() {
 
     //funcion para manejar los botones de la longitud de las sesiones
     const handleTime = (type, amount) => {
-
       if (!toggleBoolean) {
         
         if (type === 'break') {
@@ -99,6 +110,7 @@ function App() {
             return;
           }         
           setSessionTime(prev => prev + amount);
+          // aca asignamos al display el tiempo de sesion al darle al boton play
           if (!toggleBoolean) {
             setDisplayTime(sessionTime + amount )
           }
@@ -116,7 +128,8 @@ function App() {
       <header>
         <h1 className='m-2'>25 + 5 clock</h1>
       </header>
-
+      
+      {/* componente que maneja el tiempo de los breaks */}
       <div className='container-fluid row flex-row'>
         <HandlerLength 
           title="Break Length"
@@ -130,7 +143,7 @@ function App() {
           idLength="break-length"
            />
 
-
+        {/* componente que maneja el tiempo de las sesiones */}
         <HandlerLength 
           title="Session Length" 
           time={sessionTime}
@@ -143,6 +156,7 @@ function App() {
           idLength="session-length" />
       </div>
 
+      { /* componente donde mostramos la cuenta regresiva  */}
       <SessionBreak 
         time={displayTime}
         showTime={showTime} 
@@ -153,7 +167,6 @@ function App() {
         <button className='btn btn-light col-2' onClick={togglePlay} id="start_stop" ><FontAwesomeIcon icon={toggleBoolean ? faPause : faPlay} /></button>
         <button className='btn btn-light col-2' onClick={restart} id='reset' ><FontAwesomeIcon icon={faRepeat}/></button>
         <p className='col-12 mt-5'>Designed and Coded by <a href='https://github.com/bialyLT/pomodoro-clock-react' target='_blank' rel="noreferrer" className='bi bi-github link-opacity-25-hover link-underline link-underline-opacity-0 link-light'>BialyLT</a></p>
-        <audio src={audio} id='beep' ></audio>
       </div>
     </div>
   );
